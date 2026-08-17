@@ -191,3 +191,9 @@ A production object-storage signing key is intentionally required before a downl
 The current security layer adds defensive HTTP headers, a strict JSON body limit, authentication-route rate limiting, and regression coverage for authorization-sensitive middleware behavior. Existing server-side role and ownership checks remain the enforcement boundary; frontend route visibility is not treated as authorization. Private document access still requires published status, student ownership, and configured storage signing.
 
 Security limitations are explicit: the rate limiter is an in-memory single-process guard suitable for local development and a small modular-monolith deployment, while horizontally scaled production requires a shared store. No secrets, credentials, student data, force pushes, merges, or production database operations were performed.
+
+## CI/CD and production readiness
+
+The repository now includes `.github/workflows/ci.yml`. Every push and pull request runs dependency installation, Prisma schema validation and client generation, TypeScript checks, unit/security tests, the production build, and `git diff --check`. The workflow uses a read-only repository token and does not deploy or merge changes.
+
+Production deployment requires a reachable PostgreSQL database, `DATABASE_URL`, a stable `SESSION_SECRET`, configured object-storage credentials and signing support for private document downloads, and an email-provider integration if transactional email is enabled. Production database changes must use `pnpm run db:deploy`; destructive resets are not part of the workflow. The current CI job does not claim a live end-to-end environment: full lifecycle E2E tests require a provisioned PostgreSQL/storage environment and remain a documented follow-up rather than simulated passing tests.
