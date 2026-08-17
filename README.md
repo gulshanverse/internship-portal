@@ -135,3 +135,11 @@ Phase 3 adds `src/server/internship-service.ts` and `src/server/internship-route
 Admin-only endpoints support domain creation and updates, internship creation and updates, publish/unpublish operations, and archive behavior. These operations are protected by the server-side `ADMIN` role middleware. The public UI requests `/api/domains` on load and uses the existing local configuration only as a bounded preview fallback when the API is not running; the visual system and layout remain unchanged.
 
 The current implementation status is now: Phase 1 complete, Phase 2 complete, Phase 3 complete on `feature/internship-backend`, and Phase 4 student applications next. Persistent application creation, resume validation, and the multi-step Apply flow are not yet complete.
+
+## Phase 4 student application workflow
+
+Phase 4 adds `src/server/application-service.ts` and `src/server/application-routes.ts`. Authenticated students can create an application for a published internship, persist profile fields and skills, retrieve only their own applications, view an ownership-scoped application detail, and submit a draft application. Duplicate applications are blocked by the existing compound database constraint. Submitted applications move to `ASSESSMENT_PENDING` when an active assessment exists, otherwise to `SUBMITTED`.
+
+Application identifiers use a non-sequential `APP-YYYY-XXXXXXXX` format. Resume handling validates MIME type, size, and a private storage key reference; actual object-storage upload and signed download delivery remain part of the document/storage phase. Required profile fields, URLs, skills, graduation year, and application payload shape are validated with Zod. Students cannot select an internship that is unpublished or archived, and route-level ownership is enforced through the authenticated student profile.
+
+The current implementation status is now: Phase 1 complete, Phase 2 complete, Phase 3 complete, and Phase 4 complete on `feature/student-application`. The next phase is the database-backed assessment engine and admin question bank.
