@@ -226,6 +226,6 @@ No pull request was merged automatically. No force push, production reset, destr
 
 ## Staging-readiness audit
 
-The current `feature/staging-readiness` work adds categorized staging environment documentation in `.env.example`, SEO baseline assets in `public/robots.txt` and `public/sitemap.xml`, richer HTML metadata in `index.html`, and the deployment and validation guide at `docs/STAGING_READINESS.md`. These changes are non-destructive and do not deploy, merge, alter production data, or introduce credentials.
+The current `feature/staging-readiness` work adds categorized staging environment documentation in `.env.example`, a build-time SEO generator in `scripts/generate-seo-assets.mjs`, richer HTML metadata in `index.html`, and the deployment and validation guide at `docs/STAGING_READINESS.md`. These changes are non-destructive and do not deploy, merge, alter production data, or introduce credentials.
 
 The staging-readiness gate passed Prisma validation and generation, TypeScript, all 8 local tests, production build, and `git diff --check`. Live staging validation remains required for PostgreSQL migration application, private object-storage signing, email provider delivery, browser E2E, mobile, accessibility, performance, runtime monitoring, and backup/restore procedures.

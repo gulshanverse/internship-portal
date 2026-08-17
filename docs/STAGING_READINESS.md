@@ -6,7 +6,7 @@ The repository is **staging-ready for a controlled validation environment**, not
 
 ## Infrastructure requirements
 
-Staging requires a managed PostgreSQL instance, a private object-storage bucket, an application runtime capable of running the API and serving the Vite build, TLS termination, a domain such as `staging.example.com`, and a monitoring/error-reporting destination. The storage bucket must deny public access and use application-mediated authorization or short-lived signed URLs.
+Staging requires a managed PostgreSQL instance, a private object-storage bucket, an application runtime capable of running the API and serving the Vite build, TLS termination, a configured staging domain such as `staging.your-domain.com`, and a monitoring/error-reporting destination. The storage bucket must deny public access and use application-mediated authorization or short-lived signed URLs.
 
 ## Environment configuration
 
@@ -34,7 +34,7 @@ Against a provisioned staging URL, execute the student, mentor, and admin lifecy
 
 ## SEO validation
 
-Confirm title, description, canonical URL, Open Graph metadata, robots policy, sitemap availability, and clean public internship URLs. Private API, workspace, and document routes must not be indexed. Replace the staging host in `index.html`, `public/robots.txt`, and `public/sitemap.xml` with the real deployment host at release time.
+Confirm title, description, canonical URL, Open Graph metadata, robots policy, sitemap availability, and clean public internship URLs. Private API, workspace, and document routes must not be indexed. Set `PUBLIC_SITE_URL` in the build environment for the target deployment. The build runs `scripts/generate-seo-assets.mjs`, validates the absolute HTTP/HTTPS URL, and generates `robots.txt` and `sitemap.xml` with only the configured public root. Do not commit generated host-specific SEO assets or invent a production domain.
 
 ## Rollback and backup
 
