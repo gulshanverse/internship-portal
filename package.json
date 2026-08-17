@@ -5,21 +5,47 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "api:dev": "tsx server/index.ts",
     "build": "tsc -b && vite build",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "@vitejs/plugin-react": "latest",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "latest",
+    "pg": "^8.23.0",
     "react": "latest",
     "react-dom": "latest",
-    "vite": "latest",
     "typescript": "latest",
+    "vite": "latest",
     "vitest": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "zod": "^4.4.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "latest",
+    "@types/pg": "^8.21.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.12"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
 }
