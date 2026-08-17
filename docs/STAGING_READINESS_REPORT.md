@@ -3,7 +3,7 @@
 **Assessment date:** 18 August 2026
 **Candidate branch:** `feature/resume-security`
 **Candidate commit:** `1d98e47c3ccfefef0c0ee24719185c79f33ba059`
-**Pull request:** Pending creation; PR #24 is already merged on GitHub.
+**Pull request:** [PR #25](https://github.com/gulshanverse/internship-portal/pull/25); PR #24 is already merged on GitHub.
 **Merge/deployment status:** Candidate branch not merged or deployed.
 
 ## Overall readiness
@@ -99,7 +99,7 @@ The remaining blockers are live infrastructure and evidence rather than unverifi
 
 ## Final decision
 
-**READY FOR MANUAL REVIEW:** Pending final validation of `feature/resume-security`.
+**READY FOR MANUAL REVIEW:** Yes; PR #25 is open and both push and pull-request CI checks passed.
 **READY TO MERGE WITHOUT STAGING EVIDENCE:** No.
-**MERGED:** The prior PR #24 is merged; the resume-security candidate is not merged.
+**MERGED:** PR #24 is merged; PR #25 is open with no merge commit.
 **DEPLOYED:** No.
