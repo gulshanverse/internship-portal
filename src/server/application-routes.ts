@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireRole } from './middleware';
 import { createApplication, getMyApplication, listMyApplications, submitMyApplication } from './application-service';
 
-const resumeSchema = z.object({ storageKey: z.string().min(1).max(500), filename: z.string().min(1).max(255), mimeType: z.string().max(100), sizeBytes: z.number().int().positive() }).optional();
+const resumeSchema = z.object({ filename: z.string().trim().min(1).max(255), mimeType: z.string().min(1).max(100), sizeBytes: z.number().int().positive() }).optional();
 const applicationSchema = z.object({ internshipId: z.string().min(1), skills: z.array(z.string().trim().min(1).max(80)).min(1).max(30), phone: z.string().trim().min(7).max(30).optional(), college: z.string().trim().max(200).optional(), course: z.string().trim().max(200).optional(), graduationYear: z.number().int().min(1950).max(new Date().getFullYear() + 10).optional(), bio: z.string().trim().max(1500).optional(), linkedinUrl: z.string().url().max(500).optional(), githubUrl: z.string().url().max(500).optional(), portfolioUrl: z.string().url().max(500).optional(), resume: resumeSchema });
 
 export const applicationRouter = Router();

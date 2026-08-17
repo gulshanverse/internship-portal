@@ -14,6 +14,8 @@ This matrix is the release-candidate checklist for a controlled staging environm
 | Authorization | Cross-user IDOR checks | Student A cannot read Student B applications, assessments, projects, evaluations, notifications, or documents | Test IDs and response codes | **Document boundary tested; full live matrix pending** |
 | Documents | Private bucket and provider gateway | Bucket is non-public and signed intents expire | Provider policy and signed URL samples | **Infrastructure pending** |
 | Documents | Upload intent | Server generates randomized key; client supplies metadata only; MIME and 10 MiB limit enforced | Request/response capture | **Passed locally** |
+| Documents | Resume upload intent | Server generates randomized resume key; arbitrary client storage keys are ignored; MIME and 5 MiB limit enforced | Resume request/response capture | **Passed locally** |
+| Documents | Admin resume access | Raw resume keys are omitted from admin list/detail responses; admin receives only a short-lived download intent | Admin API capture and audit event | **Passed locally by code/tests; live staging pending** |
 | Documents | Download intent | Only the owning student can obtain an intent for a published document | Regression test and live response | **Passed locally; live staging pending** |
 | Documents | Revocation | Revoked documents cannot be downloaded through the application | API response evidence | **Pending live staging** |
 | Email | Provider configuration | Provider is explicitly configured before delivery is claimed | Provider health check and delivery event | **Pending; disabled by default** |
