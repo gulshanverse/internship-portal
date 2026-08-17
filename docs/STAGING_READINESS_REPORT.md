@@ -18,7 +18,7 @@ A provider-neutral HMAC gateway contract was added. It requires a private endpoi
 
 An idempotent `cleanupExpiredAuthArtifacts()` maintenance function was added. It removes only expired or revoked sessions and expired or consumed password-reset tokens in one transaction. It is not automatically scheduled by this change; the staging platform must invoke it through its approved scheduler.
 
-A staging validation matrix and updated readiness guide were added. The documentation explicitly distinguishes locally verified controls from live staging evidence and records that process-local rate limiting is insufficient for multi-instance production deployment.
+A staging validation matrix, local integration package, and updated readiness guide were added. The documentation explicitly distinguishes locally verified controls from live staging evidence and records that process-local rate limiting is insufficient for multi-instance production deployment. The task-submission route no longer accepts a client-controlled file path; attachments require a future shared upload-intent flow rather than an unsafe fallback.
 
 ## Files changed
 
@@ -33,8 +33,12 @@ A staging validation matrix and updated readiness guide were added. The document
 | `src/server/auth.test.ts` | Cleanup transaction regression coverage plus existing auth/RBAC tests |
 | `docs/STAGING_READINESS.md` | Storage, session cleanup, rate-limit, and query-scaling requirements |
 | `docs/STAGING_VALIDATION_MATRIX.md` | Release-candidate staging evidence matrix |
+| `docker-compose.local-staging.yml` | Disposable PostgreSQL/Mailpit services with fake local-only values |
+| `docs/LOCAL_INTEGRATION.md` | Safe local integration start/stop and evidence boundary |
+| `src/server/project-service.test.ts` | Task ownership and client file-path regression tests |
+| `src/server/middleware.test.ts` | RBAC and same-user authorization regression tests |
 
-Generated host-specific SEO files under `public/` were intentionally not committed. The production build generates them from `PUBLIC_SITE_URL`.
+Generated host-specific SEO files under `public/` were intentionally not committed. The production build generates them from `PUBLIC_SITE_URL`. Docker/Podman was unavailable in the audit sandbox, so the disposable PostgreSQL/Mailpit package was documented but not started; no local integration result is claimed.
 
 ## Validation actually executed
 
@@ -42,7 +46,7 @@ Generated host-specific SEO files under `public/` were intentionally not committ
 |---|---|
 | `pnpm prisma validate` | Passed; schema valid |
 | `pnpm exec prisma generate` | Passed; Prisma Client generated |
-| Vitest full suite | Passed: 6 files, 18 tests |
+| Vitest full suite | Passed: 9 files, 26 tests |
 | TypeScript check | Passed: `tsc --noEmit` and build typecheck |
 | Lint | Passed |
 | Production build | Passed with placeholder `PUBLIC_SITE_URL=https://staging.your-domain.com/` |
@@ -56,7 +60,7 @@ No real database URL, storage credential, email credential, production URL, or p
 
 The document delivery blocker is resolved at the application boundary, subject to live provider verification. The test suite proves that a document not returned by the ownership-and-publication query cannot result in a signed download intent. Signed URL TTL is bounded to 60–900 seconds, defaulting to 300 seconds. Storage keys reject traversal, absolute paths, backslashes, malformed characters, and insufficient length.
 
-The application resume path has now been migrated to the same server-generated private-storage intent boundary. Resume requests accept filename, MIME type, and size metadata only; arbitrary client storage keys are ignored by the service and are no longer part of the route schema. The server generates the private key, returns only a short-lived upload intent, and exposes an admin-only signed download-intent route. Raw resume storage keys are removed from admin application list/detail responses.
+The application resume path has now been migrated to the same server-generated private-storage intent boundary. Resume requests accept filename, MIME type, and size metadata only; arbitrary client storage keys are ignored by the service and are no longer part of the route schema. The server generates the private key, returns only a short-lived upload intent, and exposes an admin-only signed download-intent route. Raw resume storage keys are removed from admin application list/detail responses. Task submissions previously accepted a client-controlled `fileStorageKey`; that field is now rejected by the route contract and no authoritative submission file path is persisted until a dedicated shared upload-intent flow is implemented.
 
 The current rate limiter is process-local memory. It is acceptable only for a single-instance controlled staging test. A shared store is required for a multi-instance deployment. The security headers and request body limit are implemented locally, but TLS, secure-cookie behavior behind the actual proxy, and deployment trust-proxy configuration require live verification.
 
@@ -86,7 +90,7 @@ Staging requires PostgreSQL, an application runtime, TLS termination, a configur
 
 ## Production blockers
 
-The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; real staging PostgreSQL migration and query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
+The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; a dedicated task-submission attachment intent flow if file attachments are required; real staging PostgreSQL migration and query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
 
 ## Exact next steps
 

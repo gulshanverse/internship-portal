@@ -44,8 +44,8 @@ export async function getStudentProjects(userId: string) {
 
 export async function startTask(userId: string, taskId: string) { await ownedTask(userId, taskId); return prisma.task.update({ where: { id: taskId }, data: { status: TaskStatus.IN_PROGRESS } }); }
 
-export async function submitTask(userId: string, taskId: string, input: { content?: string; repositoryUrl?: string; fileStorageKey?: string }) {
+export async function submitTask(userId: string, taskId: string, input: { content?: string; repositoryUrl?: string }) {
   const task = await ownedTask(userId, taskId);
   if (!['IN_PROGRESS', 'NEEDS_REVISION'].includes(task.status)) throw new Error('TASK_NOT_SUBMITTABLE');
-  return prisma.$transaction([prisma.task.update({ where: { id: taskId }, data: { status: TaskStatus.SUBMITTED } }), prisma.submission.create({ data: { taskId, studentId: task.assignedTo, content: input.content, repositoryUrl: input.repositoryUrl, fileStorageKey: input.fileStorageKey, status: SubmissionStatus.SUBMITTED } })]);
+  return prisma.$transaction([prisma.task.update({ where: { id: taskId }, data: { status: TaskStatus.SUBMITTED } }), prisma.submission.create({ data: { taskId, studentId: task.assignedTo, content: input.content, repositoryUrl: input.repositoryUrl, status: SubmissionStatus.SUBMITTED } })]);
 }

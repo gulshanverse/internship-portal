@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: internship_portal_local
+      POSTGRES_USER: internship_local
+      POSTGRES_PASSWORD: local-only-password
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U internship_local -d internship_portal_local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - internship-portal-local-postgres:/var/lib/postgresql/data
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "51025:1025"
+      - "58025:8025"
+
+volumes:
+  internship-portal-local-postgres:

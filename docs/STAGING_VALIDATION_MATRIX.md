@@ -5,6 +5,7 @@ This matrix is the release-candidate checklist for a controlled staging environm
 | Area | Validation | Expected result | Evidence to record | Current status |
 |---|---|---|---|---|
 | Database | Prisma schema validation and client generation | Schema is valid and client generation succeeds | CI log and commit SHA | **Passed locally** |
+| Local integration | Disposable container runtime | PostgreSQL and Mailpit start only with fake local values; no production connectivity | Compose logs and health output | **Blocked: Docker/Podman unavailable in audit sandbox** |
 | Database | Apply committed migrations to an empty or backed-up staging database | Migration completes without reset or destructive operation | Migration log and backup identifier | **Pending live staging** |
 | Database | Query latency and query-plan review | No unacceptable latency or N+1 behavior at staging cardinality | Timings and query plans | **Pending live staging** |
 | Authentication | Password hashing and verification | Plaintext is never retained; valid and invalid password checks behave correctly | Test output | **Passed locally** |
@@ -16,6 +17,7 @@ This matrix is the release-candidate checklist for a controlled staging environm
 | Documents | Upload intent | Server generates randomized key; client supplies metadata only; MIME and 10 MiB limit enforced | Request/response capture | **Passed locally** |
 | Documents | Resume upload intent | Server generates randomized resume key; arbitrary client storage keys are ignored; MIME and 5 MiB limit enforced | Resume request/response capture | **Passed locally** |
 | Documents | Admin resume access | Raw resume keys are omitted from admin list/detail responses; admin receives only a short-lived download intent | Admin API capture and audit event | **Passed locally by code/tests; live staging pending** |
+| Documents | Task submission files | Client-controlled `fileStorageKey` is rejected; no authoritative submission file path is persisted without a secure intent flow | Route schema and service regression test | **Passed locally; attachment intent flow pending if required** |
 | Documents | Download intent | Only the owning student can obtain an intent for a published document | Regression test and live response | **Passed locally; live staging pending** |
 | Documents | Revocation | Revoked documents cannot be downloaded through the application | API response evidence | **Pending live staging** |
 | Email | Provider configuration | Provider is explicitly configured before delivery is claimed | Provider health check and delivery event | **Pending; disabled by default** |
