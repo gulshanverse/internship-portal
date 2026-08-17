@@ -151,3 +151,11 @@ Phase 5 adds `src/server/assessment-service.ts` and `src/server/assessment-route
 Admin-only assessment routes support creating and updating assessments, creating and editing questions, archiving questions, setting difficulty and marks, and configuring passing scores, duration, and attempt limits. Invalid attempts, exhausted attempts, submitted-attempt edits, unrelated applications, and unrelated questions are rejected by server-side ownership and state checks.
 
 The current implementation status is now: Phases 1–5 complete on their respective feature branches. Phase 6, admin application review and audited state transitions, is next. A live PostgreSQL database is still required to exercise persistence end-to-end; unit and build checks run without one.
+
+## Phase 6 admin application review
+
+Phase 6 adds `src/server/admin-review-service.ts` and `src/server/admin-review-routes.ts`. Admins can search, filter, paginate, and inspect application records with student profile, internship/domain, resume reference, assessment result, and reviewer context. Sensitive actions are server-side ADMIN-only.
+
+Application status changes are governed by an explicit transition map rather than unrestricted writes. Each transition records an `AuditEvent` with actor, entity, entity ID, source state, destination state, and relevant metadata. Admin notes are also audited. Mentor assignment and project assignment are intentionally deferred to the subsequent mentor and project phases.
+
+The current implementation status is now: Phases 1–6 complete on their focused branches. The next phase connects the student dashboard to real applications and programme data.
