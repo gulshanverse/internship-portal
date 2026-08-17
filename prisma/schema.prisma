@@ -147,6 +147,33 @@ model User {
   mentorshipAsStudent MentorshipSession[] @relation("SessionStudent")
   mentorshipAsMentor MentorshipSession[] @relation("SessionMentor")
   documentsIssued Document[] @relation("DocumentIssuer")
+  sessions        Session[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  revokedAt  DateTime?
+  createdAt  DateTime @default(now())
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, usedAt])
+  @@index([expiresAt])
 }
 
 model StudentProfile {
