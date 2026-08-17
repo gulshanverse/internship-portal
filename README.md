@@ -165,3 +165,9 @@ The current implementation status is now: Phases 1–6 complete on their focused
 Phase 7 adds `src/server/student-dashboard-service.ts` and `src/server/student-dashboard-routes.ts`. The authenticated student dashboard now has a real database query boundary for the current application, application history, assessment summaries, assigned projects, milestones, tasks, mentor context, unread and recent notifications, and published documents. All records are scoped through the authenticated student profile and user ID.
 
 The current frontend workspace remains visually preserved while the API surface is prepared for the next UI wiring increment. Empty states are represented by `null` or empty arrays from the service rather than fabricated statistics. The current implementation status is now: Phases 1–7 complete on focused branches. The next phase implements mentor assignments, scoped mentor access, reviews, and mentorship sessions.
+
+## Phase 8 mentor system
+
+Phase 8 adds `src/server/mentor-service.ts` and `src/server/mentor-routes.ts`. Mentors can view only their assigned project work, review assigned submissions, approve or request revision with feedback and optional ratings, and schedule mentorship sessions. Admins can assign a mentor to a project assignment; the action is audited. The service rejects submissions and students outside the mentor’s assignment scope.
+
+The current implementation status is now: Phases 1–8 complete on focused branches. Project templates, assignments, milestones, tasks, submissions, evaluations, documents, notifications, and final production hardening remain planned phases.
