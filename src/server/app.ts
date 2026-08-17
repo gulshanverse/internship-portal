@@ -9,17 +9,22 @@ import { adminReviewRouter } from './admin-review-routes';
 import { studentDashboardRouter } from './student-dashboard-routes';
 import { mentorRouter } from './mentor-routes';
 import { projectRouter } from './project-routes';
+import { evaluationRouter } from './evaluation-routes';
+import { documentRouter } from './document-routes';
+import { notificationRouter } from './notification-routes';
+import { rateLimit, securityHeaders } from './security';
 import { loadAuth, requireAuth, requireRole } from './middleware';
 
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
+  app.use(securityHeaders);
   app.use(express.json({ limit: '100kb' }));
   app.use(cookieParser());
   app.use(loadAuth);
 
   app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'internship-portal' }));
-  app.use('/api/auth', authRouter);
+  app.use('/api/auth', rateLimit({ windowMs: 60_000, max: 30 }), authRouter);
   app.use('/api', internshipRouter);
   app.use('/api', applicationRouter);
   app.use('/api', assessmentRouter);
@@ -27,6 +32,9 @@ export function createApp() {
   app.use('/api', studentDashboardRouter);
   app.use('/api', mentorRouter);
   app.use('/api', projectRouter);
+  app.use('/api', evaluationRouter);
+  app.use('/api', documentRouter);
+  app.use('/api', notificationRouter);
   app.get('/api/profile', requireAuth, (req, res) => res.json({ user: req.auth!.user }));
   app.get('/api/admin/health', requireRole('ADMIN'), (_req, res) => res.json({ ok: true, scope: 'admin' }));
   app.get('/api/mentor/health', requireRole('MENTOR', 'ADMIN'), (_req, res) => res.json({ ok: true, scope: 'mentor' }));
