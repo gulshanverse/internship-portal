@@ -179,3 +179,9 @@ Phase 9 adds `src/server/project-service.ts` and `src/server/project-routes.ts`.
 Students can retrieve only their own projects, start assigned tasks, and submit task work with validated content, repository URL, and private file-reference fields. Tasks accept the requested TODO → IN_PROGRESS → SUBMITTED workflow and support resubmission from NEEDS_REVISION. Mentor review remains enforced by the mentor system. Progress is represented by persisted project/task state and is not fabricated in the API.
 
 The current implementation status is now: Phases 1–9 complete on focused branches. Phase 10 evaluation, Phase 11 documents, Phase 12 notifications, Phase 13 security/E2E, and Phase 14–15 CI, production readiness, and final QA remain.
+
+## Phase 11 secure documents
+
+Phase 11 adds private document listing, issue, publish, revoke, and ownership-scoped download authorization. Students can see only their own published documents. Admins control issuance and lifecycle changes, and document actions are audited. File MIME types, size, and private storage-key format are validated; permanent public storage URLs are never returned.
+
+A production object-storage signing key is intentionally required before a download URL is produced. When it is absent, the API fails safely with `DOCUMENT_STORAGE_NOT_CONFIGURED` rather than claiming a download exists. The current status is Phases 1–11 complete on focused branches; notifications, security/E2E, CI/CD, and final QA remain.
