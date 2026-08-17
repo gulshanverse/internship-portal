@@ -223,3 +223,9 @@ Production deployment requires a reachable PostgreSQL database, `DATABASE_URL`, 
 The repository passes Prisma validation and generation, TypeScript checks, Vitest, production build, and `git diff --check` in the sandbox. The test suite contains eight passing tests across portal configuration, authentication, and security middleware. A live PostgreSQL, object-storage, email-provider, or production deployment environment was not available; therefore the repository does not claim live database migration application, email delivery, signed document downloads, or full browser E2E execution. Those integrations are documented as deployment requirements rather than simulated.
 
 No pull request was merged automatically. No force push, production reset, destructive migration, credential request, secret commit, or production deployment was performed.
+
+## Staging-readiness audit
+
+The current `feature/staging-readiness` work adds categorized staging environment documentation in `.env.example`, SEO baseline assets in `public/robots.txt` and `public/sitemap.xml`, richer HTML metadata in `index.html`, and the deployment and validation guide at `docs/STAGING_READINESS.md`. These changes are non-destructive and do not deploy, merge, alter production data, or introduce credentials.
+
+The staging-readiness gate passed Prisma validation and generation, TypeScript, all 8 local tests, production build, and `git diff --check`. Live staging validation remains required for PostgreSQL migration application, private object-storage signing, email provider delivery, browser E2E, mobile, accessibility, performance, runtime monitoring, and backup/restore procedures.
