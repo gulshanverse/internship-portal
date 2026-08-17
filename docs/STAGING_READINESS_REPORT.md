@@ -2,8 +2,8 @@
 
 **Assessment date:** 18 August 2026
 **Candidate branch:** `feature/resume-security`
-**Candidate commit:** Pending final validation
-**Pull request:** Pending creation after validation; PR #24 is already merged on GitHub.
+**Candidate commit:** `1d98e47c3ccfefef0c0ee24719185c79f33ba059`
+**Pull request:** Pending creation; PR #24 is already merged on GitHub.
 **Merge/deployment status:** Candidate branch not merged or deployed.
 
 ## Overall readiness
