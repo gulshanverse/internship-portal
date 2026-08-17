@@ -8,18 +8,32 @@
     "build": "tsc -b && vite build",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:generate": "prisma generate",
+    "db:validate": "prisma validate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
+    "@prisma/client": "^7.9.1",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "vite": "latest",
     "typescript": "latest",
-    "vitest": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "vite": "latest",
+    "vitest": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "latest",
+    "dotenv": "^17.4.2",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.12"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
 }
