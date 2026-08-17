@@ -143,3 +143,11 @@ Phase 4 adds `src/server/application-service.ts` and `src/server/application-rou
 Application identifiers use a non-sequential `APP-YYYY-XXXXXXXX` format. Resume handling validates MIME type, size, and a private storage key reference; actual object-storage upload and signed download delivery remain part of the document/storage phase. Required profile fields, URLs, skills, graduation year, and application payload shape are validated with Zod. Students cannot select an internship that is unpublished or archived, and route-level ownership is enforced through the authenticated student profile.
 
 The current implementation status is now: Phase 1 complete, Phase 2 complete, Phase 3 complete, and Phase 4 complete on `feature/student-application`. The next phase is the database-backed assessment engine and admin question bank.
+
+## Phase 5 assessment engine
+
+Phase 5 adds `src/server/assessment-service.ts` and `src/server/assessment-routes.ts`. Students can retrieve assessment metadata and sanitized active questions, start an attempt tied to their own application, save answers only while the attempt is in progress, and submit once. The service calculates marks, percentage, pass/fail, and application assessment status on the server. Correct answers are never included in the student question response.
+
+Admin-only assessment routes support creating and updating assessments, creating and editing questions, archiving questions, setting difficulty and marks, and configuring passing scores, duration, and attempt limits. Invalid attempts, exhausted attempts, submitted-attempt edits, unrelated applications, and unrelated questions are rejected by server-side ownership and state checks.
+
+The current implementation status is now: Phases 1–5 complete on their respective feature branches. Phase 6, admin application review and audited state transitions, is next. A live PostgreSQL database is still required to exercise persistence end-to-end; unit and build checks run without one.
