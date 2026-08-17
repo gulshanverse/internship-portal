@@ -11,6 +11,7 @@ import { mentorRouter } from './mentor-routes';
 import { projectRouter } from './project-routes';
 import { evaluationRouter } from './evaluation-routes';
 import { documentRouter } from './document-routes';
+import { notificationRouter } from './notification-routes';
 import { loadAuth, requireAuth, requireRole } from './middleware';
 
 export function createApp() {
@@ -31,6 +32,7 @@ export function createApp() {
   app.use('/api', projectRouter);
   app.use('/api', evaluationRouter);
   app.use('/api', documentRouter);
+app.use('/api', notificationRouter);
   app.get('/api/profile', requireAuth, (req, res) => res.json({ user: req.auth!.user }));
   app.get('/api/admin/health', requireRole('ADMIN'), (_req, res) => res.json({ ok: true, scope: 'admin' }));
   app.get('/api/mentor/health', requireRole('MENTOR', 'ADMIN'), (_req, res) => res.json({ ok: true, scope: 'mentor' }));
