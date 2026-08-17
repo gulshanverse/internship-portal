@@ -159,3 +159,9 @@ Phase 6 adds `src/server/admin-review-service.ts` and `src/server/admin-review-r
 Application status changes are governed by an explicit transition map rather than unrestricted writes. Each transition records an `AuditEvent` with actor, entity, entity ID, source state, destination state, and relevant metadata. Admin notes are also audited. Mentor assignment and project assignment are intentionally deferred to the subsequent mentor and project phases.
 
 The current implementation status is now: Phases 1–6 complete on their focused branches. The next phase connects the student dashboard to real applications and programme data.
+
+## Phase 7 student dashboard
+
+Phase 7 adds `src/server/student-dashboard-service.ts` and `src/server/student-dashboard-routes.ts`. The authenticated student dashboard now has a real database query boundary for the current application, application history, assessment summaries, assigned projects, milestones, tasks, mentor context, unread and recent notifications, and published documents. All records are scoped through the authenticated student profile and user ID.
+
+The current frontend workspace remains visually preserved while the API surface is prepared for the next UI wiring increment. Empty states are represented by `null` or empty arrays from the service rather than fabricated statistics. The current implementation status is now: Phases 1–7 complete on focused branches. The next phase implements mentor assignments, scoped mentor access, reviews, and mentorship sessions.
