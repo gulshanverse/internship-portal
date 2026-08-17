@@ -58,6 +58,14 @@ export async function revokeAllSessions(userId: string) {
   await prisma.session.updateMany({ where: { userId, revokedAt: null }, data: { revokedAt: new Date() } });
 }
 
+export async function cleanupExpiredAuthArtifacts(now = new Date()) {
+  const [sessions, passwordResetTokens] = await prisma.$transaction([
+    prisma.session.deleteMany({ where: { OR: [{ expiresAt: { lte: now } }, { revokedAt: { not: null } }] } }),
+    prisma.passwordResetToken.deleteMany({ where: { OR: [{ expiresAt: { lte: now } }, { usedAt: { not: null } }] } }),
+  ]);
+  return { sessions: sessions.count, passwordResetTokens: passwordResetTokens.count };
+}
+
 export async function issuePasswordResetToken(userId: string) {
   const token = newToken();
   await prisma.passwordResetToken.create({ data: { userId, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + RESET_TTL_MS) } });

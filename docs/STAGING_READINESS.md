@@ -6,7 +6,7 @@ The repository is **staging-ready for a controlled validation environment**, not
 
 ## Infrastructure requirements
 
-Staging requires a managed PostgreSQL instance, a private object-storage bucket, an application runtime capable of running the API and serving the Vite build, TLS termination, a configured staging domain such as `staging.your-domain.com`, and a monitoring/error-reporting destination. The storage bucket must deny public access and use application-mediated authorization or short-lived signed URLs.
+Staging requires a managed PostgreSQL instance, a private object-storage bucket, an application runtime capable of running the API and serving the Vite build, TLS termination, a configured staging domain such as `staging.your-domain.com`, and a monitoring/error-reporting destination. The storage bucket must deny public access and use application-mediated authorization or short-lived signed URLs. If the API is run on more than one instance, replace the current process-local rate-limit store with a shared store before production; the current `RATE_LIMIT_STORE=memory` setting is suitable only for a single-instance controlled staging test.
 
 ## Environment configuration
 
@@ -18,7 +18,7 @@ Use `pnpm run db:validate` and `pnpm run db:generate` during build verification.
 
 ## Private storage procedure
 
-Configure a private bucket and least-privilege access key. Validate MIME type, extension, size, randomized storage keys, ownership, and authorization before accepting files. The application must never return a permanent public storage URL. Configure `OBJECT_STORAGE_SIGNING_KEY` and `SIGNED_URL_TTL_SECONDS` only in the runtime secret manager; verify expiry and unauthorized-access responses in staging.
+Configure a private bucket and least-privilege access key. The document API now accepts metadata only, generates a randomized server-side key under `private/documents/`, validates the MIME type and 10 MiB size limit, and returns a short-lived provider upload intent. Published student documents are listed only for their owning student; the authenticated download endpoint returns a short-lived provider download intent only after an ownership and publication check. The application never returns a permanent public storage URL, accepts a client-supplied document key, or exposes provider credentials. Configure `OBJECT_STORAGE_SIGNING_KEY`, `STORAGE_ENDPOINT` or `STORAGE_SIGNED_URL_BASE`, `STORAGE_BUCKET`, and `SIGNED_URL_TTL_SECONDS` only in the runtime secret manager; verify upload completion, expiry, revoked-document behavior, and Student A versus Student B unauthorized-access responses in staging. The current boundary is provider-neutral and expects the configured endpoint to implement the documented HMAC gateway contract; a concrete S3/GCS/Azure adapter remains an infrastructure integration task.
 
 ## Email procedure
 
@@ -26,11 +26,11 @@ The provider is intentionally disabled unless a real provider adapter and creden
 
 ## Authentication and security checklist
 
-Verify TLS, secure and HttpOnly cookies, SameSite behavior, session expiry and revocation, password reset expiry, login failure behavior, role authorization, request body limits, rate limiting, defensive headers, generic error responses, audit events, and student/mentor ownership isolation. Test Student-to-Admin, Student-to-Mentor, cross-student, cross-mentor, unrelated project, assessment, application, and document access attempts.
+Verify TLS, secure and HttpOnly cookies, SameSite behavior, session expiry and revocation, password reset expiry, login failure behavior, role authorization, request body limits, rate limiting, defensive headers, generic error responses, audit events, and student/mentor ownership isolation. The application exposes an idempotent `cleanupExpiredAuthArtifacts()` maintenance function that removes only expired or revoked sessions and expired or consumed password-reset tokens; invoke it from the staging scheduler or deployment platform without running a database reset. Test Student-to-Admin, Student-to-Mentor, cross-student, cross-mentor, unrelated project, assessment, application, and document access attempts.
 
 ## Browser, mobile, accessibility, and performance validation
 
-Against a provisioned staging URL, execute the student, mentor, and admin lifecycle in a real browser. Test narrow mobile viewports for overflow and touch targets. Run keyboard-only navigation, focus visibility, form labels, error announcements, contrast, and screen-reader checks. Measure public page load, internship listing/search, dashboard query latency, admin pagination, and bundle size. Investigate N+1 queries before production use.
+Against a provisioned staging URL, execute the student, mentor, and admin lifecycle in a real browser. Test narrow mobile viewports for overflow and touch targets. Run keyboard-only navigation, focus visibility, form labels, error announcements, contrast, and screen-reader checks. Measure public page load, internship listing/search, dashboard query latency, admin pagination, and bundle size. Admin applications are paginated and notifications are capped, but project, mentor, evaluation, application-history, and student-document list queries still require live cardinality measurements; capture query timings and inspect query plans before production use. Investigate N+1 queries before production use.
 
 ## SEO validation
 
