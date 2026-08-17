@@ -104,3 +104,26 @@ The seed is development-only and creates eight domains, representative **unpubli
 This phase creates persistence architecture only. It does **not** claim to implement authentication, session handling, server-side RBAC, API endpoints, file storage, assessment scoring, document authorization, or live frontend-to-database data access. Those are separate phases. Resume, document, and submission fields store private storage references rather than public URLs; serving those objects must go through an authorized service in a later phase.
 
 The migration was generated from the validated schema without requiring a live database in the sandbox. Applying it requires a reachable PostgreSQL instance and a correctly configured `DATABASE_URL`.
+
+## Current implementation status
+
+| Phase | Status |
+| --- | --- |
+| Phase 1 — Database + Prisma | Complete |
+| Phase 2 — Authentication + RBAC | Complete on `feature/auth-rbac` |
+| Phase 3 — Internship/domain backend | Next |
+| Phases 4–14 | Planned and not yet complete |
+
+## Phase 2 authentication and RBAC
+
+Phase 2 adds a modular Express API layer with real password hashing, opaque database-backed sessions, HTTP-only cookies, logout and logout-all behavior, forgot-password token storage, password reset, current-user lookup, account-status checks, and role middleware for `STUDENT`, `MENTOR`, and `ADMIN`.
+
+Authentication logic is separated from HTTP routing. The main pieces are `src/server/auth.ts`, `src/server/middleware.ts`, `src/server/auth-routes.ts`, `src/server/app.ts`, and `server/index.ts`. The API can be run locally with:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/internship_portal?schema=public" pnpm run api:dev
+```
+
+The protected role checks are enforced at the server boundary. A frontend route or hidden navigation item is not treated as authorization. The API returns consistent `401` authentication errors and `403` permission errors, while validation errors are returned without stack traces or internal details.
+
+Phase 2 adds the `Session` and `PasswordResetToken` tables in `prisma/migrations/0002_auth_sessions/migration.sql`. Password reset email delivery is intentionally disabled unless `EMAIL_PROVIDER_API_KEY` is configured; the system does not pretend to send email. Development-only reset tokens are logged only outside production to make local testing possible.
