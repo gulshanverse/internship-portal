@@ -197,3 +197,29 @@ Security limitations are explicit: the rate limiter is an in-memory single-proce
 The repository now includes `.github/workflows/ci.yml`. Every push and pull request runs dependency installation, Prisma schema validation and client generation, TypeScript checks, unit/security tests, the production build, and `git diff --check`. The workflow uses a read-only repository token and does not deploy or merge changes.
 
 Production deployment requires a reachable PostgreSQL database, `DATABASE_URL`, a stable `SESSION_SECRET`, configured object-storage credentials and signing support for private document downloads, and an email-provider integration if transactional email is enabled. Production database changes must use `pnpm run db:deploy`; destructive resets are not part of the workflow. The current CI job does not claim a live end-to-end environment: full lifecycle E2E tests require a provisioned PostgreSQL/storage environment and remain a documented follow-up rather than simulated passing tests.
+
+## Consolidated implementation status
+
+| Phase | Status | Scope |
+|---|---|---|
+| 1 | Complete | PostgreSQL Prisma schema, migration baseline, seed architecture |
+| 2 | Complete | Password hashing, database sessions, reset-token model, authentication, RBAC |
+| 3 | Complete | Published domain/internship reads and admin lifecycle controls |
+| 4 | Complete | Student profile/application persistence and guarded submission workflow |
+| 5 | Complete | Server-side assessment attempts, answer persistence, scoring, and question-bank controls |
+| 6 | Complete | Admin application review, validated transitions, notes, pagination, audit events |
+| 7 | Complete | Ownership-scoped student dashboard data service |
+| 8 | Complete | Mentor assignments, scoped reviews, feedback, and mentorship sessions |
+| 9 | Complete | Project templates, assignments, milestone/task copying, student submissions |
+| 10 | Complete | Mentor/admin evaluations, category scoring, release audit, student release visibility |
+| 11 | Complete | Private document metadata lifecycle, validation, ownership checks, safe storage boundary |
+| 12 | Complete | In-app notification reads and read-state mutations; disabled-until-configured email abstraction |
+| 13 | Complete | Defensive headers, JSON limits, authentication rate limiting, security regression tests |
+| 14 | Complete | GitHub Actions CI, Prisma checks, build verification, production configuration guidance |
+| 15 | Complete | Final QA, documentation, and consolidated delivery status |
+
+### Final QA boundaries
+
+The repository passes Prisma validation and generation, TypeScript checks, Vitest, production build, and `git diff --check` in the sandbox. The test suite contains eight passing tests across portal configuration, authentication, and security middleware. A live PostgreSQL, object-storage, email-provider, or production deployment environment was not available; therefore the repository does not claim live database migration application, email delivery, signed document downloads, or full browser E2E execution. Those integrations are documented as deployment requirements rather than simulated.
+
+No pull request was merged automatically. No force push, production reset, destructive migration, credential request, secret commit, or production deployment was performed.
