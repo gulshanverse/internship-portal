@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /workspace
+Sitemap: https://staging.example.com/sitemap.xml
