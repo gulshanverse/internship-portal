@@ -141,3 +141,14 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Internship Portal local and sensitive data
+uploads/
+storage/
+private/
+*.sqlite
+*.sqlite3
+*.db
+.env.local
+.env.production
+.DS_Store
