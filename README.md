@@ -64,3 +64,43 @@ The current commit prioritizes a polished public website and a demonstrable oper
 ## Repository status
 
 The repository began as a minimal README-only project. The implementation in this branch adds the Vite application, the public experience, role workspaces, configuration smoke tests, production build configuration, and this documentation. No company claims or unsupported performance statistics are included.
+
+## Phase 1 database architecture
+
+The `feature/database-prisma` branch adds the first persistence layer for the full-stack roadmap. It uses **PostgreSQL + Prisma 7** as a modular-monolith foundation. The schema is intentionally normalized around the internship lifecycle rather than storing workflow state in frontend-only objects.
+
+The schema includes users and role profiles, domains, skills, internships, applications, assessments, questions, attempts and answers, project templates, project assignments, milestones, tasks, submissions, mentor feedback, evaluations, secure document references, notifications, mentorship sessions, and audit events. Foreign keys, unique constraints, status enums, timestamps, cascade behavior, and workflow-oriented indexes are included.
+
+| Database artifact | Location or command |
+| --- | --- |
+| Prisma schema | `prisma/schema.prisma` |
+| Prisma CLI configuration | `prisma.config.ts` |
+| Initial migration baseline | `prisma/migrations/0001_init/migration.sql` |
+| Database singleton | `src/server/db.ts` |
+| Development seed | `prisma/seed.ts` |
+| Environment template | `.env.example` |
+| Client generation | `pnpm run db:generate` |
+| Schema validation | `pnpm run db:validate` |
+| Local migration | `pnpm run db:migrate` |
+| Deployment migration | `pnpm run db:deploy` |
+| Development seed | `pnpm run db:seed` |
+
+### Database setup
+
+Copy `.env.example` to `.env`, provide a PostgreSQL `DATABASE_URL`, and then run the following commands:
+
+```bash
+cp .env.example .env
+pnpm install
+pnpm run db:generate
+pnpm run db:migrate
+pnpm run db:seed
+```
+
+The seed is development-only and creates eight domains, representative **unpublished** internships, and three clearly marked demo users. It does not create passwords, publish roles, or represent real students, mentors, application outcomes, company statistics, or credentials. Authentication and password handling are deliberately deferred to Phase 2.
+
+### Phase 1 security boundary
+
+This phase creates persistence architecture only. It does **not** claim to implement authentication, session handling, server-side RBAC, API endpoints, file storage, assessment scoring, document authorization, or live frontend-to-database data access. Those are separate phases. Resume, document, and submission fields store private storage references rather than public URLs; serving those objects must go through an authorized service in a later phase.
+
+The migration was generated from the validated schema without requiring a live database in the sandbox. Applying it requires a reachable PostgreSQL instance and a correctly configured `DATABASE_URL`.
