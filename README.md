@@ -165,3 +165,17 @@ The current implementation status is now: Phases 1–6 complete on their focused
 Phase 7 adds `src/server/student-dashboard-service.ts` and `src/server/student-dashboard-routes.ts`. The authenticated student dashboard now has a real database query boundary for the current application, application history, assessment summaries, assigned projects, milestones, tasks, mentor context, unread and recent notifications, and published documents. All records are scoped through the authenticated student profile and user ID.
 
 The current frontend workspace remains visually preserved while the API surface is prepared for the next UI wiring increment. Empty states are represented by `null` or empty arrays from the service rather than fabricated statistics. The current implementation status is now: Phases 1–7 complete on focused branches. The next phase implements mentor assignments, scoped mentor access, reviews, and mentorship sessions.
+
+## Phase 8 mentor system
+
+Phase 8 adds `src/server/mentor-service.ts` and `src/server/mentor-routes.ts`. Mentors can view only their assigned project work, review assigned submissions, approve or request revision with feedback and optional ratings, and schedule mentorship sessions. Admins can assign a mentor to a project assignment; the action is audited. The service rejects submissions and students outside the mentor’s assignment scope.
+
+The current implementation status is now: Phases 1–8 complete on focused branches. Project templates, assignments, milestones, tasks, submissions, evaluations, documents, notifications, and final production hardening remain planned phases.
+
+## Phase 9 project and task management
+
+Phase 9 adds `src/server/project-service.ts` and `src/server/project-routes.ts`. Admins can create, edit, archive, and list project templates, assign a published template to a student and mentor, and create real project assignments with copied milestones and tasks. Assignments and project creation are audited.
+
+Students can retrieve only their own projects, start assigned tasks, and submit task work with validated content, repository URL, and private file-reference fields. Tasks accept the requested TODO → IN_PROGRESS → SUBMITTED workflow and support resubmission from NEEDS_REVISION. Mentor review remains enforced by the mentor system. Progress is represented by persisted project/task state and is not fabricated in the API.
+
+The current implementation status is now: Phases 1–9 complete on focused branches. Phase 10 evaluation, Phase 11 documents, Phase 12 notifications, Phase 13 security/E2E, and Phase 14–15 CI, production readiness, and final QA remain.
