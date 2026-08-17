@@ -127,3 +127,11 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/internship_portal?sc
 The protected role checks are enforced at the server boundary. A frontend route or hidden navigation item is not treated as authorization. The API returns consistent `401` authentication errors and `403` permission errors, while validation errors are returned without stack traces or internal details.
 
 Phase 2 adds the `Session` and `PasswordResetToken` tables in `prisma/migrations/0002_auth_sessions/migration.sql`. Password reset email delivery is intentionally disabled unless `EMAIL_PROVIDER_API_KEY` is configured; the system does not pretend to send email. Development-only reset tokens are logged only outside production to make local testing possible.
+
+## Phase 3 internship and domain backend
+
+Phase 3 adds `src/server/internship-service.ts` and `src/server/internship-routes.ts`. Public endpoints now read active domains and published, non-archived internships from Prisma. Search and domain filtering are supported, and public detail responses include only active assessments and no draft records.
+
+Admin-only endpoints support domain creation and updates, internship creation and updates, publish/unpublish operations, and archive behavior. These operations are protected by the server-side `ADMIN` role middleware. The public UI requests `/api/domains` on load and uses the existing local configuration only as a bounded preview fallback when the API is not running; the visual system and layout remain unchanged.
+
+The current implementation status is now: Phase 1 complete, Phase 2 complete, Phase 3 complete on `feature/internship-backend`, and Phase 4 student applications next. Persistent application creation, resume validation, and the multi-step Apply flow are not yet complete.

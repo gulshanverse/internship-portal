@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { ZodError } from 'zod';
 import { authRouter } from './auth-routes';
+import { internshipRouter } from './internship-routes';
 import { loadAuth, requireAuth, requireRole } from './middleware';
 
 export function createApp() {
@@ -13,6 +14,7 @@ export function createApp() {
 
   app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'internship-portal' }));
   app.use('/api/auth', authRouter);
+  app.use('/api', internshipRouter);
   app.get('/api/profile', requireAuth, (req, res) => res.json({ user: req.auth!.user }));
   app.get('/api/admin/health', requireRole('ADMIN'), (_req, res) => res.json({ ok: true, scope: 'admin' }));
   app.get('/api/mentor/health', requireRole('MENTOR', 'ADMIN'), (_req, res) => res.json({ ok: true, scope: 'mentor' }));
