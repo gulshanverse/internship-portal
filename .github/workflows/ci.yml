@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 10
     env:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/internship_portal?schema=public
+      PUBLIC_SITE_URL: https://staging.ci.invalid
     steps:
       - name: Checkout
         uses: actions/checkout@v4
