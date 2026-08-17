@@ -8,6 +8,7 @@ import { assessmentRouter } from './assessment-routes';
 import { adminReviewRouter } from './admin-review-routes';
 import { studentDashboardRouter } from './student-dashboard-routes';
 import { mentorRouter } from './mentor-routes';
+import { projectRouter } from './project-routes';
 import { loadAuth, requireAuth, requireRole } from './middleware';
 
 export function createApp() {
@@ -25,6 +26,7 @@ export function createApp() {
   app.use('/api', adminReviewRouter);
   app.use('/api', studentDashboardRouter);
   app.use('/api', mentorRouter);
+  app.use('/api', projectRouter);
   app.get('/api/profile', requireAuth, (req, res) => res.json({ user: req.auth!.user }));
   app.get('/api/admin/health', requireRole('ADMIN'), (_req, res) => res.json({ ok: true, scope: 'admin' }));
   app.get('/api/mentor/health', requireRole('MENTOR', 'ADMIN'), (_req, res) => res.json({ ok: true, scope: 'mentor' }));
