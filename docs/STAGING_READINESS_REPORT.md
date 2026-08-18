@@ -18,7 +18,7 @@ A provider-neutral HMAC gateway contract was added. It requires a private endpoi
 
 An idempotent `cleanupExpiredAuthArtifacts()` maintenance function was added. It removes only expired or revoked sessions and expired or consumed password-reset tokens in one transaction. It is not automatically scheduled by this change; the staging platform must invoke it through its approved scheduler.
 
-A staging validation matrix, local integration package, and updated readiness guide were added. The documentation explicitly distinguishes locally verified controls from live staging evidence and records that process-local rate limiting is insufficient for multi-instance production deployment. The task-submission route no longer accepts a client-controlled file path; attachments require a future shared upload-intent flow rather than an unsafe fallback.
+A staging validation matrix, local integration package, and updated readiness guide were added. The documentation explicitly distinguishes locally verified controls from live staging evidence and records that process-local rate limiting is insufficient for multi-instance production deployment. The task-submission route now uses the shared server-generated attachment-intent flow. The server validates task ownership, filename, MIME, and size; generates a private key; creates a short-lived upload intent; consumes the one-time intent during submission; and exposes authorized student/assigned-mentor/admin download behavior with admin revocation and audit events. Client-controlled file paths are not accepted. Migration `0003_submission_attachment_metadata` is additive and preserves existing submissions.
 
 ## Files changed
 
@@ -37,6 +37,11 @@ A staging validation matrix, local integration package, and updated readiness gu
 | `docs/LOCAL_INTEGRATION.md` | Safe local integration start/stop and evidence boundary |
 | `src/server/project-service.test.ts` | Task ownership and client file-path regression tests |
 | `src/server/middleware.test.ts` | RBAC and same-user authorization regression tests |
+| `src/server/project-service.ts` | Task attachment intent issuance, consumption, authorized download, and revocation |
+| `src/server/project-routes.ts` | Authenticated task attachment endpoints |
+| `src/server/project-service.test.ts` | Task attachment validation, ownership, intent, download, and revocation tests |
+| `src/server/storage.ts` | Shared task-attachment namespace and MIME/size policy |
+| `prisma/migrations/0003_submission_attachment_metadata/migration.sql` | Additive submission attachment metadata migration |
 
 Generated host-specific SEO files under `public/` were intentionally not committed. The production build generates them from `PUBLIC_SITE_URL`. Docker/Podman was unavailable in the audit sandbox, so the disposable PostgreSQL/Mailpit package was documented but not started; no local integration result is claimed.
 
@@ -46,7 +51,7 @@ Generated host-specific SEO files under `public/` were intentionally not committ
 |---|---|
 | `pnpm prisma validate` | Passed; schema valid |
 | `pnpm exec prisma generate` | Passed; Prisma Client generated |
-| Vitest full suite | Passed: 9 files, 26 tests |
+| Vitest full suite | Passed: 9 files, 32 tests |
 | TypeScript check | Passed: `tsc --noEmit` and build typecheck |
 | Lint | Passed |
 | Production build | Passed with placeholder `PUBLIC_SITE_URL=https://staging.your-domain.com/` |
@@ -90,7 +95,7 @@ Staging requires PostgreSQL, an application runtime, TLS termination, a configur
 
 ## Production blockers
 
-The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; a dedicated task-submission attachment intent flow if file attachments are required; real staging PostgreSQL migration and query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
+The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; applying the additive submission-attachment migration to disposable/staging PostgreSQL; real staging query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
 
 ## Exact next steps
 

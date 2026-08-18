@@ -198,6 +198,7 @@ model StudentProfile {
   attempts         AssessmentAttempt[]
   projects         ProjectAssignment[] @relation("ProjectStudent")
   submissions      Submission[]
+  taskAttachmentIntents TaskAttachmentIntent[]
   documents        Document[]
 }
 
@@ -460,6 +461,7 @@ model Task {
   milestone           Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
   project             ProjectAssignment @relation(fields: [projectAssignmentId], references: [id], onDelete: Cascade)
   submissions         Submission[]
+  attachmentIntents   TaskAttachmentIntent[]
   @@index([projectAssignmentId, status])
   @@index([assignedTo, status])
 }
@@ -471,6 +473,10 @@ model Submission {
   content       String?
   repositoryUrl String?
   fileStorageKey String?
+  fileName      String?
+  fileMimeType  String?
+  fileSizeBytes Int?
+  attachmentRevokedAt DateTime?
   submittedAt   DateTime @default(now())
   status        SubmissionStatus @default(SUBMITTED)
   task          Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -478,6 +484,24 @@ model Submission {
   feedback      Feedback[]
   @@index([taskId, status])
   @@index([studentId, submittedAt])
+}
+
+model TaskAttachmentIntent {
+  id           String @id @default(cuid())
+  taskId       String
+  studentId    String
+  storageKey   String
+  fileName     String
+  fileMimeType String
+  fileSizeBytes Int
+  expiresAt    DateTime
+  consumedAt   DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime @default(now())
+  task         Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  @@index([taskId, studentId, expiresAt])
+  @@index([storageKey])
 }
 
 model Feedback {
