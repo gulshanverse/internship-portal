@@ -1,10 +1,10 @@
 # Internship Portal Staging-Readiness Report
 
 **Assessment date:** 18 August 2026
-**Candidate branch:** `feature/resume-security`
-**Candidate commit:** `920a4847ff789c27beed229ec15c8430ed97784b`
-**Pull request:** [PR #25](https://github.com/gulshanverse/internship-portal/pull/25); PR #24 is already merged on GitHub.
-**Merge/deployment status:** Candidate branch not merged or deployed.
+**Candidate branch:** `feature/final-response-hardening`
+**Candidate commit:** `2b02f5d18dc23b8a67455416631df1c8cda7375a`
+**Pull request:** [PR #26](https://github.com/gulshanverse/internship-portal/pull/26); PR #25 was merged on GitHub despite the prior unmerged review state.
+**Merge/deployment status:** New focused branch not merged or deployed.
 
 ## Overall readiness
 
@@ -51,7 +51,7 @@ Generated host-specific SEO files under `public/` were intentionally not committ
 |---|---|
 | `pnpm prisma validate` | Passed; schema valid |
 | `pnpm exec prisma generate` | Passed; Prisma Client generated |
-| Vitest full suite | Passed: 9 files, 32 tests |
+| Vitest full suite | Passed: 9 files, 33 tests |
 | TypeScript check | Passed: `tsc --noEmit` and build typecheck |
 | Lint | Passed |
 | Production build | Passed with placeholder `PUBLIC_SITE_URL=https://staging.your-domain.com/` |
@@ -81,6 +81,8 @@ Password hashing, password verification, unauthenticated role denial, and wrong-
 
 ## Storage and document status
 
+The final response-shape audit confirmed that raw resume and task attachment storage keys are not returned through student application list/detail/submit responses, student dashboard applications, student project submissions, or mentor dashboard submissions. Download access remains intent-based and authorization-gated.
+
 The code path is suitable for a controlled staging review once a private object-storage gateway is configured. Required live evidence includes private bucket policy, upload completion, content-type/size enforcement, signed URL expiry, revoked-document denial, cross-student denial, and provider audit logs. No permanent public storage URL is emitted by the refactored document service.
 
 ## Email, CI/CD, E2E, performance, accessibility, and SEO
@@ -95,20 +97,20 @@ Staging requires PostgreSQL, an application runtime, TLS termination, a configur
 
 ## Production blockers
 
-The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; applying the additive submission-attachment migration to disposable/staging PostgreSQL; real staging query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
+The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; applying the additive submission-attachment migration to disposable/staging PostgreSQL; real staging query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills. A final response-shape audit also removed raw resume and task-attachment storage keys from student application, student dashboard, student project, and mentor dashboard payloads.
 
 ## Exact next steps
 
-1. Review the new `feature/resume-security` candidate after its pull request is created; PR #24 is already merged and must not be treated as the current unmerged candidate.
+1. Review PR #26; PR #25 was merged on GitHub, while PR #26 remains the focused unmerged response-hardening candidate.
 2. Provision a non-public staging object-storage bucket and a trusted gateway or concrete provider adapter, then populate only the required runtime secret-manager values.
 3. Apply existing migrations to a backed-up staging database using the deployment platform's non-reset migration command.
 4. Schedule `cleanupExpiredAuthArtifacts()` and record its counts.
 5. Run the staging validation matrix, including cross-student IDOR, signed URL expiry, revocation, E2E lifecycle, accessibility, performance/query-plan, email, monitoring, and restore evidence.
-6. Keep the new resume-security pull request unmerged until the manual review and staging evidence are complete.
+6. Keep PR #26 unmerged until manual review and staging evidence are complete.
 
 ## Final decision
 
-**READY FOR MANUAL REVIEW:** Yes; PR #25 is open, task attachment CI passed, and the candidate contains the final locally validated task-attachment implementation.
+**READY FOR MANUAL REVIEW:** Yes; PR #26 is open, both remote CI checks passed, and local validation passed on `feature/final-response-hardening`.
 **READY TO MERGE WITHOUT STAGING EVIDENCE:** No.
-**MERGED:** PR #24 is merged; PR #25 is open with no merge commit.
+**MERGED:** PR #24 and PR #25 are merged on GitHub; the new response-hardening branch is not merged.
 **DEPLOYED:** No.

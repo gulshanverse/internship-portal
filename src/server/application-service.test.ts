@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { profileFindUnique, internshipFindFirst, applicationFindUnique, profileUpdate, applicationCreate, createUploadIntent, configured } = vi.hoisted(() => ({
-  profileFindUnique: vi.fn(), internshipFindFirst: vi.fn(), applicationFindUnique: vi.fn(), profileUpdate: vi.fn(), applicationCreate: vi.fn(), createUploadIntent: vi.fn(), configured: vi.fn(),
+const { profileFindUnique, internshipFindFirst, applicationFindUnique, applicationFindMany, applicationFindFirst, profileUpdate, applicationCreate, createUploadIntent, configured } = vi.hoisted(() => ({
+  profileFindUnique: vi.fn(), internshipFindFirst: vi.fn(), applicationFindUnique: vi.fn(), applicationFindMany: vi.fn(), applicationFindFirst: vi.fn(), profileUpdate: vi.fn(), applicationCreate: vi.fn(), createUploadIntent: vi.fn(), configured: vi.fn(),
 }));
 
 vi.mock('./db', () => ({ prisma: {
   studentProfile: { findUnique: profileFindUnique, update: profileUpdate },
   internship: { findFirst: internshipFindFirst },
-  application: { findUnique: applicationFindUnique, create: applicationCreate },
+  application: { findUnique: applicationFindUnique, findMany: applicationFindMany, findFirst: applicationFindFirst, create: applicationCreate },
 } }));
 
 vi.mock('./storage', () => ({
@@ -19,7 +19,7 @@ vi.mock('./storage', () => ({
   validateStorageKey: vi.fn(),
 }));
 
-import { createApplication, validateResume } from './application-service';
+import { createApplication, getMyApplication, listMyApplications, validateResume } from './application-service';
 
 describe('resume storage boundary', () => {
   beforeEach(() => {
@@ -51,6 +51,16 @@ describe('resume storage boundary', () => {
     expect(result).not.toHaveProperty('storageKey');
     expect(profileUpdate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ resumeStorageKey: expect.stringMatching(/^private\//) }) }));
     expect(createUploadIntent).toHaveBeenCalledWith(expect.objectContaining({ key: expect.stringMatching(/^private\//), contentType: 'application/pdf', contentLength: 100 }));
+  });
+
+  it('strips resume storage keys from student list and detail responses', async () => {
+    profileFindUnique.mockResolvedValue({ id: 'student-profile-a' });
+    applicationFindMany.mockResolvedValue([{ id: 'application-a', resumeStorageKey: 'private/documents/student-profile-a/secret.pdf', status: 'DRAFT' }]);
+    applicationFindFirst.mockResolvedValue({ id: 'application-a', resumeStorageKey: 'private/documents/student-profile-a/secret.pdf', status: 'DRAFT' });
+    const list = await listMyApplications('user-a');
+    const detail = await getMyApplication('user-a', 'APP-1');
+    expect(list[0]).not.toHaveProperty('resumeStorageKey');
+    expect(detail).not.toHaveProperty('resumeStorageKey');
   });
 
   it('blocks resume creation when private storage is not configured', async () => {

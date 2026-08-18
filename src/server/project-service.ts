@@ -58,7 +58,7 @@ export async function createTaskAttachmentUploadIntent(userId: string, taskId: s
 }
 
 export async function getStudentProjects(userId: string) {
-  return prisma.projectAssignment.findMany({ where: { student: { userId } }, orderBy: { createdAt: 'desc' }, include: { template: { include: { domain: true } }, mentor: { select: { id: true, email: true, mentorProfile: true } }, milestones: { orderBy: { order: 'asc' }, include: { tasks: { include: { submissions: { orderBy: { submittedAt: 'desc' }, take: 1 }, feedback: true } } } } } });
+  return prisma.projectAssignment.findMany({ where: { student: { userId } }, orderBy: { createdAt: 'desc' }, include: { template: { include: { domain: true } }, mentor: { select: { id: true, email: true, mentorProfile: true } }, milestones: { orderBy: { order: 'asc' }, include: { tasks: { include: { submissions: { orderBy: { submittedAt: 'desc' }, take: 1, select: { id: true, content: true, repositoryUrl: true, fileName: true, fileMimeType: true, fileSizeBytes: true, submittedAt: true, status: true, feedback: true } }, feedback: true } } } } } });
 }
 
 export async function startTask(userId: string, taskId: string) { await ownedTask(userId, taskId); return prisma.task.update({ where: { id: taskId }, data: { status: TaskStatus.IN_PROGRESS } }); }
