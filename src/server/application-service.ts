@@ -5,6 +5,12 @@ import { extensionForMime, generatePrivateStorageKey, getStorageProvider, isStor
 
 export type ResumeInput = { filename: string; mimeType: string; sizeBytes: number };
 
+type ApplicationWithResumeKey = { resumeStorageKey?: string | null; [key: string]: unknown };
+function withoutResumeStorageKey<T extends ApplicationWithResumeKey>(application: T): Omit<T, 'resumeStorageKey'> {
+  const { resumeStorageKey: _resumeStorageKey, ...safeApplication } = application;
+  return safeApplication;
+}
+
 const allowedResumeTypes = new Set(['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
 const maxResumeBytes = 5 * 1024 * 1024;
 
@@ -38,19 +44,21 @@ export async function createApplication(userId: string, input: { internshipId: s
   const resumeKey = input.resume ? generatePrivateStorageKey({ studentId: profile.id, documentId: `resume-${crypto.randomBytes(16).toString('hex')}`, extension: extensionForMime(input.resume.mimeType) }) : undefined;
   const updatedProfile = await prisma.studentProfile.update({ where: { id: profile.id }, data: { phone: input.phone, college: input.college, course: input.course, graduationYear: input.graduationYear, bio: input.bio, skills: input.skills, linkedinUrl: input.linkedinUrl, githubUrl: input.githubUrl, portfolioUrl: input.portfolioUrl, resumeStorageKey: resumeKey, profileCompletion: 100 } });
   const application = await prisma.application.create({ data: { publicId: publicApplicationId(), studentId: updatedProfile.id, internshipId: internship.id, resumeStorageKey: resumeKey, status: ApplicationStatus.DRAFT }, include: { internship: { include: { domain: true } } } });
-  if (!resumeKey || !input.resume) return { application, resumeUpload: null };
+  if (!resumeKey || !input.resume) return { application: withoutResumeStorageKey(application as unknown as ApplicationWithResumeKey), resumeUpload: null };
   const upload = await getStorageProvider().createUploadIntent({ key: resumeKey, contentType: input.resume.mimeType, contentLength: input.resume.sizeBytes, expiresInSeconds: storageTtlSeconds() });
-  return { application, resumeUpload: { uploadUrl: upload.uploadUrl, uploadExpiresAt: upload.expiresAt } };
+  return { application: withoutResumeStorageKey(application as unknown as ApplicationWithResumeKey), resumeUpload: { uploadUrl: upload.uploadUrl, uploadExpiresAt: upload.expiresAt } };
 }
 
 export async function listMyApplications(userId: string) {
   const profile = await getStudentProfile(userId);
-  return prisma.application.findMany({ where: { studentId: profile.id }, orderBy: { createdAt: 'desc' }, include: { internship: { include: { domain: true } }, attempts: { select: { id: true, status: true, percentage: true, passed: true, submittedAt: true }, orderBy: { startedAt: 'desc' }, take: 1 } } });
+  const applications = await prisma.application.findMany({ where: { studentId: profile.id }, orderBy: { createdAt: 'desc' }, include: { internship: { include: { domain: true } }, attempts: { select: { id: true, status: true, percentage: true, passed: true, submittedAt: true }, orderBy: { startedAt: 'desc' }, take: 1 } } });
+  return applications.map(application => withoutResumeStorageKey(application as unknown as ApplicationWithResumeKey));
 }
 
 export async function getMyApplication(userId: string, publicId: string) {
   const profile = await getStudentProfile(userId);
-  return prisma.application.findFirst({ where: { publicId, studentId: profile.id }, include: { internship: { include: { domain: true } }, attempts: { select: { id: true, status: true, percentage: true, passed: true, submittedAt: true } } } });
+  const application = await prisma.application.findFirst({ where: { publicId, studentId: profile.id }, include: { internship: { include: { domain: true } }, attempts: { select: { id: true, status: true, percentage: true, passed: true, submittedAt: true } } } });
+  return application ? withoutResumeStorageKey(application as unknown as ApplicationWithResumeKey) : null;
 }
 
 export async function submitMyApplication(userId: string, publicId: string) {
@@ -59,7 +67,8 @@ export async function submitMyApplication(userId: string, publicId: string) {
   if (!application) throw new Error('APPLICATION_NOT_FOUND');
   if (application.status !== ApplicationStatus.DRAFT) throw new Error('INVALID_APPLICATION_STATE');
   const nextStatus = application.internship.assessments.length > 0 ? ApplicationStatus.ASSESSMENT_PENDING : ApplicationStatus.SUBMITTED;
-  return prisma.application.update({ where: { id: application.id }, data: { status: nextStatus, submittedAt: new Date() }, include: { internship: { include: { domain: true } } } });
+  const updated = await prisma.application.update({ where: { id: application.id }, data: { status: nextStatus, submittedAt: new Date() }, include: { internship: { include: { domain: true } } } });
+  return withoutResumeStorageKey(updated as unknown as ApplicationWithResumeKey);
 }
 
 export async function authorizeResumeDownload(adminId: string, applicationId: string) {

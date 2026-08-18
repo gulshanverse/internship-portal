@@ -3,7 +3,7 @@ import { prisma } from './db';
 
 export async function getMentorDashboard(userId: string) {
   const [projects, sessions] = await prisma.$transaction([
-    prisma.projectAssignment.findMany({ where: { mentorId: userId }, orderBy: { createdAt: 'desc' }, include: { student: true, milestones: { include: { tasks: { include: { submissions: { orderBy: { submittedAt: 'desc' }, take: 1 } } } } }, template: true } }),
+    prisma.projectAssignment.findMany({ where: { mentorId: userId }, orderBy: { createdAt: 'desc' }, include: { student: true, milestones: { include: { tasks: { include: { submissions: { orderBy: { submittedAt: 'desc' }, take: 1, select: { id: true, content: true, repositoryUrl: true, fileName: true, fileMimeType: true, fileSizeBytes: true, submittedAt: true, status: true, feedback: true } } } } } }, template: true } }),
     prisma.mentorshipSession.findMany({ where: { mentorId: userId }, orderBy: { scheduledAt: 'asc' }, take: 20, include: { student: true, project: true } }),
   ]);
   return { projects, sessions, pendingSubmissions: projects.flatMap(project => project.milestones.flatMap(milestone => milestone.tasks.flatMap(task => task.submissions.filter(submission => submission.status === 'IN_REVIEW')))) };
