@@ -2,7 +2,7 @@
 
 **Assessment date:** 18 August 2026
 **Candidate branch:** `feature/resume-security`
-**Candidate commit:** `f18da744ca8109182218ff047d6f82ef4969b8b7`
+**Candidate commit:** `cacc0e04184aec11b52b7c5b5981bd05b557dfa9`
 **Pull request:** [PR #25](https://github.com/gulshanverse/internship-portal/pull/25); PR #24 is already merged on GitHub.
 **Merge/deployment status:** Candidate branch not merged or deployed.
 
