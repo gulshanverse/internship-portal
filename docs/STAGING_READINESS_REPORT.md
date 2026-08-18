@@ -2,8 +2,8 @@
 
 **Assessment date:** 18 August 2026
 **Candidate branch:** `feature/final-response-hardening`
-**Candidate commit:** Pending commit
-**Pull request:** Pending creation; PR #25 was merged on GitHub despite the prior unmerged review state.
+**Candidate commit:** `2b02f5d18dc23b8a67455416631df1c8cda7375a`
+**Pull request:** [PR #26](https://github.com/gulshanverse/internship-portal/pull/26); PR #25 was merged on GitHub despite the prior unmerged review state.
 **Merge/deployment status:** New focused branch not merged or deployed.
 
 ## Overall readiness
@@ -101,16 +101,16 @@ The remaining blockers are live infrastructure and evidence rather than unverifi
 
 ## Exact next steps
 
-1. Review the new `feature/resume-security` candidate after its pull request is created; PR #24 is already merged and must not be treated as the current unmerged candidate.
+1. Review PR #26; PR #25 was merged on GitHub, while PR #26 remains the focused unmerged response-hardening candidate.
 2. Provision a non-public staging object-storage bucket and a trusted gateway or concrete provider adapter, then populate only the required runtime secret-manager values.
 3. Apply existing migrations to a backed-up staging database using the deployment platform's non-reset migration command.
 4. Schedule `cleanupExpiredAuthArtifacts()` and record its counts.
 5. Run the staging validation matrix, including cross-student IDOR, signed URL expiry, revocation, E2E lifecycle, accessibility, performance/query-plan, email, monitoring, and restore evidence.
-6. Keep the new resume-security pull request unmerged until the manual review and staging evidence are complete.
+6. Keep PR #26 unmerged until manual review and staging evidence are complete.
 
 ## Final decision
 
-**READY FOR MANUAL REVIEW:** Pending creation of the focused response-hardening PR; local validation passed on `feature/final-response-hardening`.
+**READY FOR MANUAL REVIEW:** Yes; PR #26 is open, both remote CI checks passed, and local validation passed on `feature/final-response-hardening`.
 **READY TO MERGE WITHOUT STAGING EVIDENCE:** No.
 **MERGED:** PR #24 and PR #25 are merged on GitHub; the new response-hardening branch is not merged.
 **DEPLOYED:** No.
