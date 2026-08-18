@@ -1,10 +1,10 @@
 # Internship Portal Staging-Readiness Report
 
 **Assessment date:** 18 August 2026
-**Candidate branch:** `feature/document-security`
-**Candidate commit:** `7d8d9c0dabe6eb5f794f5d53ff571ab8ea5841eb`
-**Pull request:** [PR #24](https://github.com/gulshanverse/internship-portal/pull/24)
-**Merge/deployment status:** Open, unmerged, and not deployed.
+**Candidate branch:** `feature/resume-security`
+**Candidate commit:** `920a4847ff789c27beed229ec15c8430ed97784b`
+**Pull request:** [PR #25](https://github.com/gulshanverse/internship-portal/pull/25); PR #24 is already merged on GitHub.
+**Merge/deployment status:** Candidate branch not merged or deployed.
 
 ## Overall readiness
 
@@ -18,7 +18,7 @@ A provider-neutral HMAC gateway contract was added. It requires a private endpoi
 
 An idempotent `cleanupExpiredAuthArtifacts()` maintenance function was added. It removes only expired or revoked sessions and expired or consumed password-reset tokens in one transaction. It is not automatically scheduled by this change; the staging platform must invoke it through its approved scheduler.
 
-A staging validation matrix and updated readiness guide were added. The documentation explicitly distinguishes locally verified controls from live staging evidence and records that process-local rate limiting is insufficient for multi-instance production deployment.
+A staging validation matrix, local integration package, and updated readiness guide were added. The documentation explicitly distinguishes locally verified controls from live staging evidence and records that process-local rate limiting is insufficient for multi-instance production deployment. The task-submission route now uses the shared server-generated attachment-intent flow. The server validates task ownership, filename, MIME, and size; generates a private key; creates a short-lived upload intent; consumes the one-time intent during submission; and exposes authorized student/assigned-mentor/admin download behavior with admin revocation and audit events. Client-controlled file paths are not accepted. Migration `0003_submission_attachment_metadata` is additive and preserves existing submissions.
 
 ## Files changed
 
@@ -33,8 +33,17 @@ A staging validation matrix and updated readiness guide were added. The document
 | `src/server/auth.test.ts` | Cleanup transaction regression coverage plus existing auth/RBAC tests |
 | `docs/STAGING_READINESS.md` | Storage, session cleanup, rate-limit, and query-scaling requirements |
 | `docs/STAGING_VALIDATION_MATRIX.md` | Release-candidate staging evidence matrix |
+| `docker-compose.local-staging.yml` | Disposable PostgreSQL/Mailpit services with fake local-only values |
+| `docs/LOCAL_INTEGRATION.md` | Safe local integration start/stop and evidence boundary |
+| `src/server/project-service.test.ts` | Task ownership and client file-path regression tests |
+| `src/server/middleware.test.ts` | RBAC and same-user authorization regression tests |
+| `src/server/project-service.ts` | Task attachment intent issuance, consumption, authorized download, and revocation |
+| `src/server/project-routes.ts` | Authenticated task attachment endpoints |
+| `src/server/project-service.test.ts` | Task attachment validation, ownership, intent, download, and revocation tests |
+| `src/server/storage.ts` | Shared task-attachment namespace and MIME/size policy |
+| `prisma/migrations/0003_submission_attachment_metadata/migration.sql` | Additive submission attachment metadata migration |
 
-Generated host-specific SEO files under `public/` were intentionally not committed. The production build generates them from `PUBLIC_SITE_URL`.
+Generated host-specific SEO files under `public/` were intentionally not committed. The production build generates them from `PUBLIC_SITE_URL`. Docker/Podman was unavailable in the audit sandbox, so the disposable PostgreSQL/Mailpit package was documented but not started; no local integration result is claimed.
 
 ## Validation actually executed
 
@@ -42,7 +51,7 @@ Generated host-specific SEO files under `public/` were intentionally not committ
 |---|---|
 | `pnpm prisma validate` | Passed; schema valid |
 | `pnpm exec prisma generate` | Passed; Prisma Client generated |
-| Vitest full suite | Passed: 6 files, 18 tests |
+| Vitest full suite | Passed: 9 files, 32 tests |
 | TypeScript check | Passed: `tsc --noEmit` and build typecheck |
 | Lint | Passed |
 | Production build | Passed with placeholder `PUBLIC_SITE_URL=https://staging.your-domain.com/` |
@@ -56,7 +65,7 @@ No real database URL, storage credential, email credential, production URL, or p
 
 The document delivery blocker is resolved at the application boundary, subject to live provider verification. The test suite proves that a document not returned by the ownership-and-publication query cannot result in a signed download intent. Signed URL TTL is bounded to 60–900 seconds, defaulting to 300 seconds. Storage keys reject traversal, absolute paths, backslashes, malformed characters, and insufficient length.
 
-A separate remaining concern exists in the application resume path: `application-service.ts` still accepts a client-supplied `resume.storageKey` after syntactic validation. This is outside the newly refactored issued-document route but should be migrated to the same server-generated upload-intent boundary before production if resumes are stored in the same private object-storage system. It is therefore a **remaining security hardening item**, not claimed as fixed by PR #24.
+The application resume path has now been migrated to the same server-generated private-storage intent boundary. Resume requests accept filename, MIME type, and size metadata only; arbitrary client storage keys are ignored by the service and are no longer part of the route schema. The server generates the private key, returns only a short-lived upload intent, and exposes an admin-only signed download-intent route. Raw resume storage keys are removed from admin application list/detail responses. Task submissions previously accepted a client-controlled `fileStorageKey`; that field is now rejected by the route contract and no authoritative submission file path is persisted until a dedicated shared upload-intent flow is implemented.
 
 The current rate limiter is process-local memory. It is acceptable only for a single-instance controlled staging test. A shared store is required for a multi-instance deployment. The security headers and request body limit are implemented locally, but TLS, secure-cookie behavior behind the actual proxy, and deployment trust-proxy configuration require live verification.
 
@@ -86,21 +95,20 @@ Staging requires PostgreSQL, an application runtime, TLS termination, a configur
 
 ## Production blockers
 
-The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; the resume storage-key migration; real staging PostgreSQL migration and query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
+The remaining blockers are live infrastructure and evidence rather than unverified claims in the local code gate: concrete private-storage provider integration and authorization testing; applying the additive submission-attachment migration to disposable/staging PostgreSQL; real staging query-plan measurements; scheduled auth cleanup; shared rate-limit storage for multi-instance operation; email provider configuration; live browser E2E and IDOR matrix; accessibility, mobile, performance, observability, backup/restore, and rollback drills.
 
 ## Exact next steps
 
-1. Manually review PR #24; do not merge automatically.
+1. Review the new `feature/resume-security` candidate after its pull request is created; PR #24 is already merged and must not be treated as the current unmerged candidate.
 2. Provision a non-public staging object-storage bucket and a trusted gateway or concrete provider adapter, then populate only the required runtime secret-manager values.
-3. Migrate the resume upload path to the same server-generated storage-intent contract before production use.
-4. Apply existing migrations to a backed-up staging database using the deployment platform's non-reset migration command.
-5. Schedule `cleanupExpiredAuthArtifacts()` and record its counts.
-6. Run the staging validation matrix, including cross-student IDOR, signed URL expiry, revocation, E2E lifecycle, accessibility, performance/query-plan, email, monitoring, and restore evidence.
-7. Keep PR #24 unmerged until the manual review and staging evidence are complete.
+3. Apply existing migrations to a backed-up staging database using the deployment platform's non-reset migration command.
+4. Schedule `cleanupExpiredAuthArtifacts()` and record its counts.
+5. Run the staging validation matrix, including cross-student IDOR, signed URL expiry, revocation, E2E lifecycle, accessibility, performance/query-plan, email, monitoring, and restore evidence.
+6. Keep the new resume-security pull request unmerged until the manual review and staging evidence are complete.
 
 ## Final decision
 
-**READY FOR MANUAL REVIEW:** Yes.
+**READY FOR MANUAL REVIEW:** Yes; PR #25 is open, task attachment CI passed, and the candidate contains the final locally validated task-attachment implementation.
 **READY TO MERGE WITHOUT STAGING EVIDENCE:** No.
-**MERGED:** No.
+**MERGED:** PR #24 is merged; PR #25 is open with no merge commit.
 **DEPLOYED:** No.

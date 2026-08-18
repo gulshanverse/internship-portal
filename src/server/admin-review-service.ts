@@ -23,11 +23,19 @@ export async function listApplications(input: { page?: number; pageSize?: number
     prisma.application.findMany({ where, skip: (page - 1) * pageSize, take: pageSize, orderBy: { createdAt: 'desc' }, include: { student: { select: { id: true, fullName: true, college: true, course: true, graduationYear: true, skills: true, linkedinUrl: true, githubUrl: true, portfolioUrl: true, resumeStorageKey: true } }, internship: { include: { domain: true } }, attempts: { select: { id: true, percentage: true, passed: true, submittedAt: true, status: true }, orderBy: { startedAt: 'desc' }, take: 1 } } }),
     prisma.application.count({ where }),
   ]);
-  return { data, pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) } };
+  const safeData = data.map(({ student, ...application }) => {
+    const { resumeStorageKey: _resumeStorageKey, ...safeStudent } = student;
+    return { ...application, student: safeStudent };
+  });
+  return { data: safeData, pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) } };
 }
 
 export async function getApplicationDetail(id: string) {
-  return prisma.application.findUnique({ where: { id }, include: { student: true, internship: { include: { domain: true, assessments: { select: { id: true, title: true } } } }, attempts: { select: { id: true, score: true, percentage: true, passed: true, status: true, submittedAt: true, answers: { select: { questionId: true, marks: true, isCorrect: true } } } }, reviewer: { select: { id: true, email: true, role: true } } } });
+  const application = await prisma.application.findUnique({ where: { id }, include: { student: true, internship: { include: { domain: true, assessments: { select: { id: true, title: true } } } }, attempts: { select: { id: true, score: true, percentage: true, passed: true, status: true, submittedAt: true, answers: { select: { questionId: true, marks: true, isCorrect: true } } } }, reviewer: { select: { id: true, email: true, role: true } } } });
+  if (!application) return null;
+  const { resumeStorageKey: _resumeStorageKey, student, ...safeApplication } = application;
+  const { resumeStorageKey: _studentResumeStorageKey, ...safeStudent } = student;
+  return { ...safeApplication, student: safeStudent };
 }
 
 export async function transitionApplication(applicationId: string, reviewerId: string, toStatus: ApplicationStatus, notes?: string) {

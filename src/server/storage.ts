@@ -19,12 +19,13 @@ export type StorageProvider = {
 
 const DEFAULT_TTL_SECONDS = 300;
 
-export function generatePrivateStorageKey(input: { studentId: string; documentId: string; extension?: string }): string {
+export function generatePrivateStorageKey(input: { studentId: string; documentId: string; extension?: string; namespace?: string }): string {
   const safeStudent = input.studentId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const safeDocument = input.documentId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const safeNamespace = (input.namespace ?? 'documents').replace(/[^a-zA-Z0-9_-]/g, '_');
   const nonce = randomBytes(24).toString('hex');
   const extension = input.extension?.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-  return `private/documents/${safeStudent}/${safeDocument}-${nonce}${extension ? `.${extension}` : ''}`;
+  return `private/${safeNamespace}/${safeStudent}/${safeDocument}-${nonce}${extension ? `.${extension}` : ''}`;
 }
 
 export function validateStorageKey(key: string): void {
@@ -107,4 +108,6 @@ export function extensionForMime(mimeType: string): string | undefined {
 }
 
 export const ALLOWED_DOCUMENT_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'text/plain']);
+export const ALLOWED_TASK_ATTACHMENT_MIME_TYPES = new Set(['application/pdf', 'image/jpeg', 'image/png', 'text/plain', 'application/zip', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
 export const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
+export const MAX_TASK_ATTACHMENT_BYTES = 20 * 1024 * 1024;
