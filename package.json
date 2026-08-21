@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "api:dev": "tsx server/index.ts",
-    "build": "node scripts/generate-seo-assets.mjs && tsc -b && vite build",
+    "build": "pnpm run db:generate && node scripts/generate-seo-assets.mjs && tsc -b && vite build",
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:seo": "vitest run scripts/generate-seo-assets.test.ts",
