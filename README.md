@@ -1,4 +1,4 @@
-# Internship Portal
+# Internship Portal: INTERNERS 
 
 A premium, company-owned internship programme platform for structured applications, domain assessments, mentorship, project assignments, evaluations, and student growth. This repository currently contains the responsive public website and a role-based workspace prototype designed around the product specification.
 
